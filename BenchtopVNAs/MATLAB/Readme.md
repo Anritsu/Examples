@@ -42,7 +42,7 @@ Not all VNA devices support VXI-11 connections (using the Instrument Control Too
 
 Both examples, regardless of connection method, function in a similar manner, described bellow:
 * Note: The example script contains a SOLT calibration (requiring a VNA with a minimum of 2 ports). For a single-port VNA, skip the calibration step to have a good functional example.
-* Note: For further understanding of individual SCPI commands, please consult the ShockLine Series VNA [Programming Manual](https://dl.cdn-anritsu.com/en-us/test-measurement/files/Manuals/Programming-Manual/10410-00746Y.pdf)
+* Note: For further understanding of individual SCPI commands, please consult the ShockLine Series VNA [Programming Manual](https://dl.cdn-anritsu.com/en-us/test-measurement/files/Manuals/Programming-Manual/10410-00746AA.pdf)
 * Note: All configurations of the examples are performed on a single channel - "CALC{1}" / "SENS{1}". Users can however use as many as 16 different channels, each with individual configuration
 
 ### 4.0. Instrument connection
