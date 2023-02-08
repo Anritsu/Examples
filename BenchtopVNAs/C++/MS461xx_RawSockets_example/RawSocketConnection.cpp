@@ -13,7 +13,7 @@ RawSocketConnection::RawSocketConnection(std::string resourceName) : SCPIConnect
 RawSocketConnection::~RawSocketConnection()
 {
 }
-
+//TODO: add try/catch blocks to all class methods
 void RawSocketConnection::Connect()
 {
 	if (WSAStartup(MAKEWORD(2, 2), &WSA) != 0)
