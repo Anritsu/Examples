@@ -8,6 +8,7 @@ RawSocketConnection::RawSocketConnection(std::string resourceName) : SCPIConnect
 	PortNo = atoi(tempResourceName.substr(tempResourceName.find(":") + 2,
 		tempResourceName.rfind("::") - tempResourceName.find("::") + 2).c_str());
 	strcpy_s(IpAddress, tempResourceName.substr(0, tempResourceName.find("::")).c_str());
+	
 }
 
 RawSocketConnection::~RawSocketConnection()
@@ -16,45 +17,69 @@ RawSocketConnection::~RawSocketConnection()
 //TODO: add try/catch blocks to all class methods
 void RawSocketConnection::Connect()
 {
-	if (WSAStartup(MAKEWORD(2, 2), &WSA) != 0)
-	{
-		throw CustomException("WSAStartup Failed. Error Code: " + std::to_string(WSAGetLastError()));
-		return;
-	}
+	try {
+		if (WSAStartup(MAKEWORD(2, 2), &WSA) != 0)
+		{
+			throw CustomException("WSAStartup Failed. Error Code: " + std::to_string(WSAGetLastError()));
+			return;
+		}
 
-	if ((Socket = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
-	{
-		throw CustomException("Could not create socket: " + std::to_string(WSAGetLastError()));
-		return;
-	}
-	inet_pton(AF_INET, IpAddress, &Server.sin_addr.s_addr);
-	Server.sin_family = AF_INET;
-	Server.sin_port = htons(PortNo);
+		if ((Socket = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+		{
+			throw CustomException("Could not create socket: " + std::to_string(WSAGetLastError()));
+			return;
+		}
+		inet_pton(AF_INET, IpAddress, &Server.sin_addr.s_addr);
+		Server.sin_family = AF_INET;
+		Server.sin_port = htons(PortNo);
 
-	if (connect(Socket, (struct sockaddr*)&Server, sizeof(Server)) < 0)
-	{
-		throw CustomException("Connection error!");
-		return;
+		if (connect(Socket, (struct sockaddr*)&Server, sizeof(Server)) < 0)
+		{
+			throw CustomException("Socket connection error!");
+			return;
+		}
+		Connected = true;
 	}
-	Connected = true;
+	catch (CustomException& ce)
+	{
+		std::cout << ce.toString() << std::endl;
+		std::cout << "Connected status = " << Connected << std::endl;
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "Unexpected exception: " << e.what() << " when trying to create socket connection to " << ResourceName << std::endl;
+		exit(-1);
+	}
 }
 
 void RawSocketConnection::SetTimeout(int timeout)
 {
-	if (Connected)
-	{
-		int retCode = setsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
-if (retCode == SOCKET_ERROR) {
-	throw CustomException("Failed to set receive timeout");
-}
-retCode = setsockopt(Socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
-if (retCode == SOCKET_ERROR) {
-	throw CustomException("Failed to set send timeout");
-}
+	try {
+		if (Connected)
+		{
+			int retCode = setsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+			if (retCode == SOCKET_ERROR)
+			{
+				throw SocketTimeoutSetReceiveError("Failed to set receive timeout");
+			}
+			retCode = setsockopt(Socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
+			if (retCode == SOCKET_ERROR)
+			{
+				throw SocketTimeoutSetSendError("Failed to set send timeout");
+			}
+		}
+		else
+		{
+			throw CustomException("Failed to set timeout! Not connected to instrument " + ResourceName);
+		}
 	}
-	else
+	catch (CustomException& ce)
 	{
-	throw CustomException("Failed to set timeout! Not connected to instrument " + ResourceName);
+		std::cout << ce.toString() << std::endl;
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "Unexpected exception: " << e.what() << " when trying to create socket connection to " << ResourceName << std::endl;
 	}
 }
 
