@@ -14,7 +14,7 @@ private:
     std::string _exception;
 };
 
-class SocketError : CustomException
+class SocketError : public CustomException
 {
 public:
     SocketError() : _exception() {}
@@ -56,7 +56,7 @@ private:
     std::string _exception;
 };
 
-class SocketTimeoutSetReceiveError : SocketTimeoutSetError
+class SocketTimeoutSetReceiveError : public SocketTimeoutSetError
 {
 public:
     SocketTimeoutSetReceiveError() : _exception() {}
@@ -70,7 +70,7 @@ private:
     std::string _exception;
 };
 
-class SocketCommunicationError : SocketError
+class SocketCommunicationError : public SocketError
 {
 public:
     SocketCommunicationError() : _exception() {}
@@ -84,7 +84,7 @@ private:
     std::string _exception;
 };
 
-class SocketCommunicationWriteError : SocketCommunicationError
+class SocketCommunicationWriteError : public SocketCommunicationError
 {
 public:
     SocketCommunicationWriteError() : _exception() {}
@@ -98,7 +98,7 @@ private:
     std::string _exception;
 };
 
-class SocketCommunicationReadError : SocketCommunicationError
+class SocketCommunicationReadError : public SocketCommunicationError
 {
 public:
     SocketCommunicationReadError() : _exception() {}
@@ -112,7 +112,7 @@ private:
     std::string _exception;
 };
 
-class SocketCommunicationTimeoutError : SocketCommunicationReadError
+class SocketCommunicationTimeoutError : public SocketCommunicationReadError
 {
 public:
     SocketCommunicationTimeoutError() : _exception() {}
@@ -126,7 +126,7 @@ private:
     std::string _exception;
 };
 
-class SocketConnectionError : SocketError
+class SocketConnectionError : public SocketError
 {
 public:
     SocketConnectionError() : _exception() {}
@@ -140,7 +140,7 @@ private:
     std::string _exception;
 };
 
-class SocketConnectionConnectError : SocketConnectionError
+class SocketConnectionConnectError : public SocketConnectionError
 {
 public:
     SocketConnectionConnectError() : _exception() {}
@@ -154,7 +154,7 @@ private:
     std::string _exception;
 };
 
-class SocketConnectionDisconnectError : SocketConnectionError
+class SocketConnectionDisconnectError : public SocketConnectionError
 {
 public:
     SocketConnectionDisconnectError() : _exception() {}
