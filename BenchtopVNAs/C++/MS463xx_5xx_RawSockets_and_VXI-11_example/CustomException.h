@@ -14,7 +14,7 @@ private:
     std::string _exception;
 };
 
-class SocketError : CustomException
+class SocketError : public CustomException
 {
 public:
     SocketError() : _exception() {}
@@ -56,7 +56,7 @@ private:
     std::string _exception;
 };
 
-class SocketTimeoutSetReceiveError : SocketTimeoutSetError
+class SocketTimeoutSetReceiveError : public SocketTimeoutSetError
 {
 public:
     SocketTimeoutSetReceiveError() : _exception() {}
@@ -70,7 +70,7 @@ private:
     std::string _exception;
 };
 
-class SocketCommunicationError : SocketError
+class SocketCommunicationError : public SocketError
 {
 public:
     SocketCommunicationError() : _exception() {}
@@ -84,7 +84,7 @@ private:
     std::string _exception;
 };
 
-class SocketCommunicationWriteError : SocketCommunicationError
+class SocketCommunicationWriteError : public SocketCommunicationError
 {
 public:
     SocketCommunicationWriteError() : _exception() {}
@@ -98,7 +98,7 @@ private:
     std::string _exception;
 };
 
-class SocketCommunicationReadError : SocketCommunicationError
+class SocketCommunicationReadError : public SocketCommunicationError
 {
 public:
     SocketCommunicationReadError() : _exception() {}
@@ -112,7 +112,7 @@ private:
     std::string _exception;
 };
 
-class SocketCommunicationTimeoutError : SocketCommunicationReadError
+class SocketCommunicationTimeoutError : public SocketCommunicationReadError
 {
 public:
     SocketCommunicationTimeoutError() : _exception() {}
@@ -126,7 +126,7 @@ private:
     std::string _exception;
 };
 
-class SocketConnectionError : SocketError
+class SocketConnectionError : public SocketError
 {
 public:
     SocketConnectionError() : _exception() {}
@@ -140,7 +140,7 @@ private:
     std::string _exception;
 };
 
-class SocketConnectionConnectError : SocketConnectionError
+class SocketConnectionConnectError : public SocketConnectionError
 {
 public:
     SocketConnectionConnectError() : _exception() {}
@@ -154,7 +154,7 @@ private:
     std::string _exception;
 };
 
-class SocketConnectionDisconnectError : SocketConnectionError
+class SocketConnectionDisconnectError : public SocketConnectionError
 {
 public:
     SocketConnectionDisconnectError() : _exception() {}
@@ -163,6 +163,118 @@ public:
     const std::string toString() const throw() { return _exception; }
     const char* what() {
         return "Failed to disconnect from device";
+    }
+private:
+    std::string _exception;
+};
+
+class VisaTimeoutSetError : public std::exception //TODO: change ierarchy, this should not inherit directly from std::exception
+{
+public:
+    VisaTimeoutSetError() : _exception() {}
+    VisaTimeoutSetError(std::string exp) : _exception(exp) {}
+    ~VisaTimeoutSetError() throw () {}
+    const std::string toString() const throw() { return _exception; }
+    const char* what() {
+        return "Visa Timeout set error";
+    }
+private:
+    std::string _exception;
+};
+
+class VisaConnectionError : public std::exception //TODO: change ierarchy, this should not inherit directly from std::exception
+{
+public:
+    VisaConnectionError() : _exception() {}
+    VisaConnectionError(std::string exp) : _exception(exp) {}
+    ~VisaConnectionError() throw () {}
+    const std::string toString() const throw() { return _exception; }
+    const char* what() {
+        return "Visa Connection Error";
+    }
+private:
+    std::string _exception;
+};
+
+class VisaConnectionConnectError : public VisaConnectionError
+{
+public:
+    VisaConnectionConnectError() : _exception() {}
+    VisaConnectionConnectError(std::string exp) : _exception(exp) {}
+    ~VisaConnectionConnectError() throw () {}
+    const std::string toString() const throw() { return _exception; }
+    const char* what() {
+        return "Failed to connect to device";
+    }
+private:
+    std::string _exception;
+};
+
+class VisaConnectionDisconnectError : public VisaConnectionError
+{
+public:
+    VisaConnectionDisconnectError() : _exception() {}
+    VisaConnectionDisconnectError(std::string exp) : _exception(exp) {}
+    ~VisaConnectionDisconnectError() throw () {}
+    const std::string toString() const throw() { return _exception; }
+    const char* what() {
+        return "Failed to connect to device";
+    }
+private:
+    std::string _exception;
+};
+
+class VisaCommunicationError : public std::exception //TODO implement and inherit from VisaError
+{
+public:
+    VisaCommunicationError() : _exception() {}
+    VisaCommunicationError(std::string exp) : _exception(exp) {}
+    ~VisaCommunicationError() throw () {}
+    const std::string toString() const throw() { return _exception; }
+    const char* what() {
+        return "Visa Communication Error";
+    }
+private:
+    std::string _exception;
+};
+
+class VisaCommunicationWriteError : public VisaCommunicationError
+{
+public:
+    VisaCommunicationWriteError() : _exception() {}
+    VisaCommunicationWriteError(std::string exp) : _exception(exp) {}
+    ~VisaCommunicationWriteError() throw () {}
+    const std::string toString() const throw() { return _exception; }
+    const char* what() {
+        return "Failed to send command message to device";
+    }
+private:
+    std::string _exception;
+};
+
+class VisaCommunicationReadError : public VisaCommunicationError
+{
+public:
+    VisaCommunicationReadError() : _exception() {}
+    VisaCommunicationReadError(std::string exp) : _exception(exp) {}
+    ~VisaCommunicationReadError() throw () {}
+    const std::string toString() const throw() { return _exception; }
+    const char* what() {
+        return "Failed to recieve command response from device";
+    }
+private:
+    std::string _exception;
+};
+
+class VisaCommunicationTimeoutError : public VisaCommunicationReadError
+{
+public:
+    VisaCommunicationTimeoutError() : _exception() {}
+    VisaCommunicationTimeoutError(std::string exp) : _exception(exp) {}
+    ~VisaCommunicationTimeoutError() throw () {}
+    const std::string toString() const throw() { return _exception; }
+    const char* what() {
+        return "Failed to recieve command response from device - Timeout Error";
     }
 private:
     std::string _exception;
