@@ -16,7 +16,7 @@ int main()
 	}
 	catch (CustomException& exception)
 	{
-		std::cout << exception.toString() << std::endl;
+		std::cout << exception.what() << std::endl;
 		return -1;
 	}
 
@@ -28,7 +28,7 @@ int main()
 	}
 	catch (CustomException& exception)
 	{
-		std::cout << exception.toString() << std::endl;
+		std::cout << exception.what() << std::endl;
 		return -1;
 	}
 	std::cout << "*IDN? response is: " << idnResponse << std::endl;
@@ -40,12 +40,20 @@ int main()
 	}
 	catch (CustomException& exception)
 	{
-		std::cout << exception.toString() << std::endl;
+		std::cout << exception.what() << std::endl;
 		return -1;
 	}
 
 	// 3. Connection closing
-	anritsuSCPIConnection.Disconnect();
+	try
+	{
+		anritsuSCPIConnection.Disconnect();
+	}
+	catch (CustomException& exception)
+	{
+		std::cout << exception.what() << std::endl;
+		return -1;
+	}
     return 0;
 }
 
