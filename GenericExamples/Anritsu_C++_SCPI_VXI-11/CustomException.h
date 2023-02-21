@@ -2,140 +2,105 @@
 
 #include <exception>
 #include <string>
-class CustomException :
+class VirtualCustomException :
     public std::exception
 {
 public:
-    CustomException() : _exception() {}
-    CustomException(std::string exp) : _exception(exp) {}
-    ~CustomException() throw () {}
+    VirtualCustomException() : _exception() {}
+    VirtualCustomException(std::string exp) : _exception(exp) {}
+    ~VirtualCustomException() throw () {}
     const std::string toString() const throw() { return _exception; }
+    virtual const char* what() = 0;
 private:
     std::string _exception;
+};
+
+class CustomException : public VirtualCustomException
+{
+public:
+    using VirtualCustomException::VirtualCustomException;
+    const char* what() {
+        return "Custom error";
+    }
 };
 
 class VisaError : public CustomException
 {
 public:
-    VisaError() : _exception() {}
-    VisaError(std::string exp) : _exception(exp) {}
-    ~VisaError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using CustomException::CustomException;
     const char* what() {
         return "Visa Error";
     }
-private:
-    std::string _exception;
 };
 
 class VisaTimeoutSetError : public VisaError
 {
 public:
-    VisaTimeoutSetError() : _exception() {}
-    VisaTimeoutSetError(std::string exp) : _exception(exp) {}
-    ~VisaTimeoutSetError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using VisaError::VisaError;
     const char* what() {
-        return "Visa Timeout set error";
+        return "Visa Timeout Set Error";
     }
-private:
-    std::string _exception;
 };
 
 class VisaConnectionError : public VisaError
 {
 public:
-    VisaConnectionError() : _exception() {}
-    VisaConnectionError(std::string exp) : _exception(exp) {}
-    ~VisaConnectionError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using VisaError::VisaError;
     const char* what() {
         return "Visa Connection Error";
     }
-private:
-    std::string _exception;
 };
 
 class VisaConnectionConnectError : public VisaConnectionError
 {
 public:
-    VisaConnectionConnectError() : _exception() {}
-    VisaConnectionConnectError(std::string exp) : _exception(exp) {}
-    ~VisaConnectionConnectError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using VisaConnectionError::VisaConnectionError;
     const char* what() {
-        return "Failed to connect to device";
+        return "Visa Connection Connect Error";
     }
-private:
-    std::string _exception;
 };
 
 class VisaConnectionDisconnectError : public VisaConnectionError
 {
 public:
-    VisaConnectionDisconnectError() : _exception() {}
-    VisaConnectionDisconnectError(std::string exp) : _exception(exp) {}
-    ~VisaConnectionDisconnectError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using VisaConnectionError::VisaConnectionError;
     const char* what() {
-        return "Failed to connect to device";
+        return "Visa Connection Disconnect Error";
     }
-private:
-    std::string _exception;
 };
 
-class VisaCommunicationError : public std::exception //TODO implement and inherit from VisaError
+class VisaCommunicationError : public VisaError
 {
 public:
-    VisaCommunicationError() : _exception() {}
-    VisaCommunicationError(std::string exp) : _exception(exp) {}
-    ~VisaCommunicationError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using VisaError::VisaError;
     const char* what() {
         return "Visa Communication Error";
     }
-private:
-    std::string _exception;
 };
 
 class VisaCommunicationWriteError : public VisaCommunicationError
 {
 public:
-    VisaCommunicationWriteError() : _exception() {}
-    VisaCommunicationWriteError(std::string exp) : _exception(exp) {}
-    ~VisaCommunicationWriteError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using VisaCommunicationError::VisaCommunicationError;
     const char* what() {
-        return "Failed to send command message to device";
+        return "Visa Communication Write Error";
     }
-private:
-    std::string _exception;
 };
 
 class VisaCommunicationReadError : public VisaCommunicationError
 {
 public:
-    VisaCommunicationReadError() : _exception() {}
-    VisaCommunicationReadError(std::string exp) : _exception(exp) {}
-    ~VisaCommunicationReadError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using VisaCommunicationError::VisaCommunicationError;
     const char* what() {
-        return "Failed to recieve command response from device";
+        return "Visa Communication Read Error";
     }
-private:
-    std::string _exception;
 };
 
 class VisaCommunicationTimeoutError : public VisaCommunicationReadError
 {
 public:
-    VisaCommunicationTimeoutError() : _exception() {}
-    VisaCommunicationTimeoutError(std::string exp) : _exception(exp) {}
-    ~VisaCommunicationTimeoutError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using VisaCommunicationReadError::VisaCommunicationReadError;
     const char* what() {
-        return "Failed to recieve command response from device - Timeout Error";
+        return "Visa Communication Read Timeout Error";
     }
-private:
-    std::string _exception;
 };

@@ -2,168 +2,123 @@
 
 #include <exception>
 #include <string>
-class CustomException :
+class VirtualCustomException :
     public std::exception
 {
 public:
-    CustomException() : _exception() {}
-    CustomException(std::string exp) : _exception(exp) {}
-    ~CustomException() throw () {}
+    VirtualCustomException() : _exception() {}
+    VirtualCustomException(std::string exp) : _exception(exp) {}
+    ~VirtualCustomException() throw () {}
     const std::string toString() const throw() { return _exception; }
+    virtual const char* what() = 0;
 private:
     std::string _exception;
+};
+
+class CustomException : public VirtualCustomException
+{
+public:
+    using VirtualCustomException::VirtualCustomException;
+    const char* what() {
+        return "Custom error";
+    }
 };
 
 class SocketError : public CustomException
 {
 public:
-    SocketError() : _exception() {}
-    SocketError(std::string exp) : _exception(exp) {}
-    ~SocketError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using CustomException::CustomException;
     const char* what() {
         return "Socket Error";
     }
-private:
-    std::string _exception;
 };
 
 class SocketTimeoutSetError : public SocketError
 {
 public:
-    SocketTimeoutSetError() : _exception() {}
-    SocketTimeoutSetError(std::string exp) : _exception(exp) {}
-    ~SocketTimeoutSetError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using SocketError::SocketError;
     const char* what() {
-        return "Socket Timeout set and/or send error";
+        return "Socket Send/Recieve Timeout Set Error";
     }
-private:
-    std::string _exception;
 };
 
 class SocketTimeoutSetSendError : public SocketTimeoutSetError
 {
 public:
-    SocketTimeoutSetSendError() : _exception() {}
-    SocketTimeoutSetSendError(std::string exp) : _exception(exp) {}
-    ~SocketTimeoutSetSendError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using SocketTimeoutSetError::SocketTimeoutSetError;
     const char* what() {
-        return "Failed to set send timeout";
+        return "Socket send Timeout Set Error";
     }
-private:
-    std::string _exception;
 };
 
 class SocketTimeoutSetReceiveError : public SocketTimeoutSetError
 {
 public:
-    SocketTimeoutSetReceiveError() : _exception() {}
-    SocketTimeoutSetReceiveError(std::string exp) : _exception(exp) {}
-    ~SocketTimeoutSetReceiveError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using SocketTimeoutSetError::SocketTimeoutSetError;
     const char* what() {
-        return "Failed to set recieve timeout";
+        return "Socket recieve Timeout Set Error";
     }
-private:
-    std::string _exception;
 };
 
 class SocketCommunicationError : public SocketError
 {
 public:
-    SocketCommunicationError() : _exception() {}
-    SocketCommunicationError(std::string exp) : _exception(exp) {}
-    ~SocketCommunicationError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using SocketError::SocketError;
     const char* what() {
         return "Socket Communication Error";
     }
-private:
-    std::string _exception;
 };
 
 class SocketCommunicationWriteError : public SocketCommunicationError
 {
 public:
-    SocketCommunicationWriteError() : _exception() {}
-    SocketCommunicationWriteError(std::string exp) : _exception(exp) {}
-    ~SocketCommunicationWriteError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using SocketCommunicationError::SocketCommunicationError;
     const char* what() {
-        return "Failed to send command message to device";
+        return "Socket Communication Write Error";
     }
-private:
-    std::string _exception;
 };
 
 class SocketCommunicationReadError : public SocketCommunicationError
 {
 public:
-    SocketCommunicationReadError() : _exception() {}
-    SocketCommunicationReadError(std::string exp) : _exception(exp) {}
-    ~SocketCommunicationReadError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using SocketCommunicationError::SocketCommunicationError;
     const char* what() {
-        return "Failed to recieve command response from device";
+        return "Socket Communication Read Error";
     }
-private:
-    std::string _exception;
 };
 
 class SocketCommunicationTimeoutError : public SocketCommunicationReadError
 {
 public:
-    SocketCommunicationTimeoutError() : _exception() {}
-    SocketCommunicationTimeoutError(std::string exp) : _exception(exp) {}
-    ~SocketCommunicationTimeoutError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using SocketCommunicationReadError::SocketCommunicationReadError;
     const char* what() {
-        return "Failed to recieve command response from device - Timeout Error";
+        return "Socket Communication Read Timeout Error";
     }
-private:
-    std::string _exception;
 };
 
 class SocketConnectionError : public SocketError
 {
 public:
-    SocketConnectionError() : _exception() {}
-    SocketConnectionError(std::string exp) : _exception(exp) {}
-    ~SocketConnectionError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using SocketError::SocketError;
     const char* what() {
         return "Socket Connection Error";
     }
-private:
-    std::string _exception;
 };
 
 class SocketConnectionConnectError : public SocketConnectionError
 {
 public:
-    SocketConnectionConnectError() : _exception() {}
-    SocketConnectionConnectError(std::string exp) : _exception(exp) {}
-    ~SocketConnectionConnectError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using SocketConnectionError::SocketConnectionError;
     const char* what() {
-        return "Failed to connect to device";
+        return "Socket Connection Connect Error";
     }
-private:
-    std::string _exception;
 };
 
 class SocketConnectionDisconnectError : public SocketConnectionError
 {
 public:
-    SocketConnectionDisconnectError() : _exception() {}
-    SocketConnectionDisconnectError(std::string exp) : _exception(exp) {}
-    ~SocketConnectionDisconnectError() throw () {}
-    const std::string toString() const throw() { return _exception; }
+    using SocketConnectionError::SocketConnectionError;
     const char* what() {
-        return "Failed to disconnect from device";
+        return "Socket Connection Disconnect Error";
     }
-private:
-    std::string _exception;
 };

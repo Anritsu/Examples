@@ -14,13 +14,30 @@ VXI11Connection::~VXI11Connection()
 
 void VXI11Connection::SetTimeout(int timeOutMs)
 {
-	if (Connected)
-	{
-		viSetAttribute(Session, VI_ATTR_TMO_VALUE, timeOutMs);
+	try {
+		if (Connected)
+		{
+			viSetAttribute(Session, VI_ATTR_TMO_VALUE, timeOutMs);
+		}
+		else
+		{
+			throw VisaTimeoutSetError("Failed to set timeout! Not connected to instrument " + ResourceName + ".");
+		}
 	}
-	else
+	catch (VisaTimeoutSetError& vtse)
 	{
-		throw VisaTimeoutSetError("Failed to set timeout! Not connected to instrument " + ResourceName);
+		std::cout << vtse.toString() << std::endl;
+		throw vtse;
+	}
+	catch (VisaConnectionError& vce)
+	{
+		std::cout << vce.toString() << std::endl;
+		throw vce;
+	}
+	catch (std::exception& e)
+	{
+		std::cout << "Unexpected exception " << e.what() << "when trying to set connection timeout to " << ResourceManager << "." << std::endl;
+		throw e;
 	}
 }
 
@@ -32,18 +49,19 @@ void VXI11Connection::Connect()
 		if (status != VI_SUCCESS)
 		{
 			viClose(ResourceManager);
-			throw VisaConnectionConnectError("Failed to connect to " + ResourceName);
+			throw VisaConnectionConnectError("Visa Connection error. ViStatus code " + std::to_string(status) + ".");
 		}	
 		Connected = true;
 	}
 	catch (VisaConnectionConnectError& vcce)
 	{
-		std::cout << vcce.toString() << ": " << vcce.what() << std::endl;
+		std::cout << vcce.toString() << std::endl;
 		throw vcce;
 	}
 	catch (std::exception& e)
 	{
-		std::cout << "Unexpected exception " << e.what() << "when trying to create VXI-11 connection to " << ResourceManager << std::endl;
+		std::cout << "Unexpected exception " << e.what() << "when trying to create VXI-11 connection to " << ResourceManager << "." << std::endl;
+		throw e;
 	}
 }
 
@@ -53,22 +71,24 @@ void VXI11Connection::Disconnect()
 		ViStatus closeSessionStatus = viClose(Session);
 		if (closeSessionStatus != 0)
 		{
-			throw VisaConnectionDisconnectError("Failed to disconnect from " + ResourceName);
+			throw VisaConnectionDisconnectError("Closing Visa Connection failed with ViStatus code " + std::to_string(closeSessionStatus) + ".");
 		}
 		ViStatus closeResourceStatus = viClose(ResourceManager);
 		if (closeResourceStatus != 0)
 		{
-			throw VisaConnectionDisconnectError("Failed to close the visa resource manager");
+			throw VisaConnectionDisconnectError("Closing Visa Resource Manager failed with ViStatus code " + std::to_string(closeResourceStatus) + ".");
 		}
 		Connected = false;
 	}
 	catch (VisaConnectionDisconnectError& vcde)
 	{
-		std::cout << vcde.toString() << ": " << vcde.what() << std::endl;
+		std::cout << vcde.toString() << std::endl;
+		throw vcde;
 	}
 	catch (std::exception& e)
 	{
-		std::cout << "Unexpected exception " << e.what() << "when trying to disconnect from " << ResourceManager << std::endl;
+		std::cout << "Unexpected exception " << e.what() << "when trying to disconnect from " << ResourceManager << "." << std::endl;
+		throw e;
 	}
 }
 int VXI11Connection::Send(std::string command)
@@ -79,28 +99,28 @@ int VXI11Connection::Send(std::string command)
 			ViStatus status = viPrintf(Session, (command + "\n").c_str());
 			if (status != VI_SUCCESS)
 			{
-				throw VisaCommunicationWriteError(("Error when trying to write command " + command + " Return STATUS: " + std::to_string(status)));
+				throw VisaCommunicationWriteError("Error when sending the command '" + command + "'! Return STATUS: " + std::to_string(status) + ".");
 			}
 		}
 		else
 		{
-			throw VisaConnectionError(("Not connected to instrument " + ResourceName));
+			throw VisaConnectionError("Error when sending the command '" + command + "'! Not connected to instrument " + ResourceName + ".");
 		}
 		return VI_SUCCESS;
 	}
 	catch (VisaCommunicationWriteError& vcwe)
 	{
-		std::cout << vcwe.toString() << ": " << vcwe.what() << std::endl;
+		std::cout << vcwe.toString() << std::endl;
 		throw vcwe;
 	}
 	catch (VisaConnectionError& vce)
 	{
-		std::cout << vce.toString() << ": " << vce.what() << std::endl;
+		std::cout << vce.toString() << std::endl;
 		throw vce;
 	}
 	catch (std::exception& e)
 	{
-		std::cout << "Unexpected exception: " << e.what() << "when trying to write to visa connection at " << ResourceName << std::endl;
+		std::cout << "Unexpected exception: " << e.what() << "when trying to write to Visa Connection at " << ResourceName << "." << std::endl;
 		throw e;
 	}
 }
@@ -116,11 +136,11 @@ std::string VXI11Connection::Query(std::string command)
 			status = viRead(Session, (ViBuf)respBuf, SCPIConnection::OneByte, &retCount);
 			if (status == VI_ERROR_TMO)
 			{
-				throw VisaCommunicationTimeoutError("Command execution for command '" + command + "' not finished");
+				throw VisaCommunicationTimeoutError("Command execution for command '" + command + "' not finished.");
 			}
 			else if (((status < 1073676290) && (status != 0)) || (status > 1073676443))
 			{
-				throw VisaCommunicationReadError("Error when reading the first character of the response from instrument to command '" + command + "'!Visa error status : " + std::to_string(status));
+				throw VisaCommunicationReadError("Error when reading the first character of the response from instrument to command '" + command + "'! Visa error status : " + std::to_string(status) + ".");
 			}
 			if (retCount == SCPIConnection::OneByte)
 			{
@@ -133,7 +153,7 @@ std::string VXI11Connection::Query(std::string command)
 					{
 						throw VisaCommunicationReadError("Error when reading response from instrument to command '" + command + 
 							"'! Return count size: " + std::to_string(retCount) + 
-							". Return STATUS: " + std::to_string(status));
+							". Return STATUS: " + std::to_string(status) + ".");
 					}
 					else
 					{
@@ -153,7 +173,7 @@ std::string VXI11Connection::Query(std::string command)
 					{
 						throw VisaCommunicationReadError(("Error when reading buffer size number of digits! Return count size: " +
 							std::to_string(retCount)) +
-							" Return STATUS: " + std::to_string(status));
+							". Return STATUS: " + std::to_string(status) + ".");
 					}
 
 					uint32_t readBuffDigits = respBuf[0] - '0';
@@ -169,7 +189,7 @@ std::string VXI11Connection::Query(std::string command)
 					{
 						throw VisaCommunicationReadError(("Error when reading buffer size! Return count size: " +
 							std::to_string(retCount)) +
-							" Return STATUS: " + std::to_string(status));
+							". Return STATUS: " + std::to_string(status) + ".");
 					}
 					int bufferSize = atoi(respBuf);
 
@@ -184,7 +204,7 @@ std::string VXI11Connection::Query(std::string command)
 					{
 						throw VisaCommunicationReadError(("Error when reading block data! Return count size: " +
 							std::to_string(retCount)) +
-							" Return STATUS: " + std::to_string(status));
+							". Return STATUS: " + std::to_string(status) + ".");
 					}
 					std::string returnValue(respBuf, retCount);
 
@@ -201,7 +221,7 @@ std::string VXI11Connection::Query(std::string command)
 						{
 							throw VisaCommunicationReadError(("Error when reading block data! Return count size: " +
 								std::to_string(retCount)) +
-								" Return STATUS: " + std::to_string(status));
+								". Return STATUS: " + std::to_string(status) + ".");
 						}
 
 						alreadyRead += retCount;
@@ -216,34 +236,34 @@ std::string VXI11Connection::Query(std::string command)
 			{
 				throw VisaCommunicationReadError("Error when reading first character! Return count size: " +
 					std::to_string(retCount) +
-					" Return STATUS: " +
+					". Return STATUS: " +
 					std::to_string(status) + ".");
 			}
 		}
 		else
 		{
-			throw VisaConnectionError(("Failed to send query! Not connected to instument " + ResourceName));
+			throw VisaConnectionError("Failed to send query! Not connected to instument " + ResourceName + ".");
 		}
 		return "";
 	}
 	catch (VisaCommunicationTimeoutError& vcte)
 	{
-		std::cout << vcte.toString() << ": " << vcte.what() << std::endl;
+		std::cout << vcte.toString() << std::endl;
 		throw vcte;
 	}
 	catch (VisaCommunicationReadError& vcre)
 	{
-		std::cout << vcre.toString() << ": " << vcre.what() << std::endl;
+		std::cout << vcre.toString() << std::endl;
 		throw vcre;
 	}
 	catch (VisaCommunicationError& vce)
 	{
-		std::cout << vce.toString() << ": " << vce.what() << std::endl;
+		std::cout << vce.toString() << std::endl;
 		throw vce;
 	}
 	catch (std::exception& e)
 	{
-		std::cout << "Unexpected exception: " << e.what() << " when trying to read from socket connection at " << ResourceName << std::endl;
+		std::cout << "Unexpected exception: " << e.what() << " when trying to read from socket connection at " << ResourceName << "." << std::endl;
 		throw e;
 	}
 }
