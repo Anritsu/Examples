@@ -129,6 +129,77 @@ void SCPI_example(SCPIConnection* instrument, int timeout) {
     std::cout << "Param 4 - S22 - FData" << std::endl;
     std::cout << f22Data << std::endl;
 
+    // EXTRA: Timeout error handling example
+
+    std::cout << std::endl;
+    instrument->SetTimeout(1); //setting timeout to lowest possible time to guarantee timeout on any time-consuming operation
+    try
+    {
+        instrument->Write(":TRIG:SING");
+        std::string timeoutOPC = instrument->Query("*OPC?");
+        if (timeoutOPC != "1")
+        {
+            throw CustomException("OPC returned an unexpected value while waiting for calibration to finish - expected \"1\", received: " + timeoutOPC + ".");
+        }
+    }
+    catch (SocketCommunicationTimeoutError& scte)
+    {
+        // When a timeout error occurs, the device will queue a response to a SCPI command, but will never deliver it because of the error.
+        // We therefore 'flush' this response by setting the timeout value higher, and then reading the response of a 'dummy' query. 
+        // The dummy query 'command' can be an empty string.
+        // If it's a valid query, the value recieved is likely compromised anyway, AND it might queue more actions that may lead to timeout errors.
+
+        std::cout << "Error '" << scte.what() << "' caught" << std::endl;
+        instrument->SetTimeout(50000);  //Timeout needs to first be set to a sufficiently high value
+                                        //If we don't do this, than whatever operation caused the timeout error will only have twice the initial timeout time to complete (2ms in this example)
+
+        std::string dummyValue = instrument->Query("*IDN?"); //Then we flush the the first queued response.
+
+        std::cout << "Compromised dummy value = " << dummyValue << std::endl; // Display the value, very likely to be a compromised value.
+
+
+        std::string timeoutOPC = instrument->Query("*OPC?"); //Retry the original failed query command
+        if (timeoutOPC != "1")
+        {
+            throw CustomException("OPC returned an unexpected value while waiting for calibration to finish - expected \"1\", received: " + timeoutOPC + ".");
+        }
+
+        if (timeoutOPC == "1")
+        {
+            std::cout << "Succesfully handeled the timeout error" << std::endl;
+        }
+    }
+    catch (VisaCommunicationTimeoutError& vcte)
+    {
+        // When a timeout error occurs, the device will queue a response to a SCPI command, but will never deliver it because of the error.
+        // We therefore 'flush' this response by setting the timeout value higher, and then reading the response of a 'dummy' query. 
+        // The dummy query 'command' can be an empty string.
+        // If it's a valid query, the value recieved is likely compromised anyway, AND it might queue more actions that may lead to timeout errors.
+
+        std::cout << "Error '" << vcte.what() << "' caught" << std::endl;
+        instrument->SetTimeout(50000);  //Timeout needs to first be set to a sufficiently high value
+                                        //If we don't do this, than whatever operation caused the timeout error will only have twice the initial timeout time to complete (2ms in this example)
+
+        std::string dummyValue = instrument->Query("*IDN?"); //Then we flush the the first queued response.
+
+        std::cout << "Compromised dummy value = " << dummyValue << std::endl; // Display the value, very likely to be a compromised value.
+
+
+        std::string timeoutOPC = instrument->Query("*OPC?"); //Retry the original failed query command
+        if (timeoutOPC != "1")
+        {
+            throw CustomException("OPC returned an unexpected value while waiting for calibration to finish - expected \"1\", received: " + timeoutOPC + ".");
+        }
+
+        if (timeoutOPC == "1")
+        {
+            std::cout << "Succesfully handeled the timeout error" << std::endl;
+        }
+
+    }
+
+    instrument->SetTimeout(timeout);
+
     // 14. Connection closing
     instrument->Disconnect();
 
@@ -139,7 +210,7 @@ int main()
     //RawSocket Connection example:
 
     std::string resourceNameRawSocket = "TCPIP0::127.0.0.1::5001::SOCKET";
-    int resourceTimeoutRawSocket = 10000;
+    int resourceTimeoutRawSocket = 20000;
         
     RawSocketConnection rawSocketsConnection(resourceNameRawSocket);
         
@@ -151,7 +222,7 @@ int main()
     //VXI-11 Connection example:
 
     std::string resourceNameVXIConnection = "TCPIP0::127.0.0.1::inst0::INSTR";
-    int resourceTimeoutVXIConnection = 10000;
+    int resourceTimeoutVXIConnection = 20000;
 
     VXIConnection VXIConnection(resourceNameVXIConnection);
 
