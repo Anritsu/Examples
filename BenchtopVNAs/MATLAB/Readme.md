@@ -121,7 +121,8 @@ Outputs, for each trace, the formatted data values at each of the measurement po
 The connection object will end the relevant connection method depending on the type it instantiated at step 0.
 
 ## 5.Revision History
-The latest version of these MATLAB scripts, and examples for other programming languages, can be downloaded at [this location (to be determined)]. \
-REV 1.0, 07/27/2022 \
+The latest version of these MATLAB scripts, and examples for other programming languages, can be downloaded at [this location](https://github.com/Anritsu/Examples).  
+
+REV 1.1, 2/22/2023  
 Modified by: Voicu Bogdan, Bucharest, Romania \
 Original Release. 

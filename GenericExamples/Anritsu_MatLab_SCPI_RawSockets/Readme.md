@@ -58,8 +58,8 @@ The instrument is returned to its factory as-shipped configuration.
 The connection object will end the connection executed at step **4.0**.
 
 ## 5.Revision History
-The latest version of this MatLab example, and examples for other programming languages, can be downloaded at [this location (to be determined)].
+The latest version of this MatLab example, and examples for other programming languages, can be downloaded at [this location](https://github.com/Anritsu/Examples).  
 
-REV 1.0, 6/7/2022  
+REV 1.1, 2/22/2023  
 Modified by: Voicu Bogdan, Bucharest, Romania  
 Original Release.

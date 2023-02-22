@@ -115,11 +115,33 @@ Outputs, for each trace, the raw S-parameter values at each of the measurement p
 ### 4.13. Read Formatted data
 Outputs, for each trace, the formatted data values at each of the measurement points. (Formatting type was set at step 4).
 
+### Extra example: Timeout error handling
+A timeout errors occur when a time-expensive operation is performed and prevents the response to another new query within the timeout window.
+If the operation takes longer than the allotted time for the connection protocol, the "READ" (query) aspect of the communication will fail to happen from the remote session's perspective.
+However, from the Hardware's point of view, that response is still queued up to be sent.
+
+This portion will exemplify the need to 'flush' the read queue if a timeout error is encountered (otherwise the next non-timeout-failed query will be a concatenated string resulted from all previous failed - but handled - queries, separated by semicolons).
+> The '_dummy_value_' response for the example code should be "1;<<Response from '*IDN?' query>>"
+
+It's also important to note that the timeout value should be changed (increased to a sufficiently high value) prior to this 'flushing' query, otherwise whatever window of time to finish the time-expensive operation will simply be twice the initial 'timeout' value.
+
+- The 'flushing' query can simply have an empty string as the method argument instead of SCPI;
+- Be weary of just sending dummy scpi commands as the "write" aspect of the query is still executed
+
 ### 4.14. Instrument connection closing.
 The connection object will end the relevant connection method depending on the type it instantiated at step 0.
 
+### 4.a. Custom errors defined for error-handling
+The file "Error Class Inheritance.png" displays all custom errors classes defined and used in the C++ examples in this repository.
+All (non-virtual) error classes have the methods:
+- `toString()` that displays the conditions under which the error occurred;
+- `what()` method that displays what specific error occurred.
+
+An error of a certain type can be caught by its own error class, or any 'parent' error class, as represented in the diagram.
+
 ## 5.Revision History
-The latest version of these C++ solutions, and examples for other programming languages, can be downloaded at [this location (to be determined)].
-REV 1.0, 6/15/2022
+The latest version of these C++ solutions, and examples for other programming languages, can be downloaded at [this location](https://github.com/Anritsu/Examples).
+
+REV 1.1, 2/22/2023
 Modified by: Voicu Bogdan, Bucharest, Romania
 Original Release. 

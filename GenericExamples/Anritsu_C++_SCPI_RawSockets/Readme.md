@@ -57,9 +57,17 @@ The instrument is returned to its factory as-shipped configuration.
 ### 4.3. Instrument connection closing
 The connection object will end the connection executed at step **4.0**.
 
-## 5.Revision History
-The latest version of this C++ example, and examples for other programming languages, can be downloaded at [this location (to be determined)].
+### 4.a. Custom errors defined for error-handling
+The file "Error Class Inheritance.png" displays all custom errors classes defined and used in the C++ examples in this repository. \
+All (non-virtual) error classes have the methods:
+- `toString()` that displays the conditions under which the error occurred;
+- `what()` method that displays what specific error occurred. \
 
-REV 1.0, 6/7/2022  
+An error of a certain type can be caught by its own error class, or any 'parent' error class, as represented in the diagram.
+
+## 5.Revision History
+The latest version of this C++ example, and examples for other programming languages, can be downloaded at [this location](https://github.com/Anritsu/Examples).
+
+REV 1.1, 2/22/2023  
 Modified by: Voicu Bogdan, Bucharest, Romania  
 Original Release.
