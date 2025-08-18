@@ -1,0 +1,1 @@
+This folder contains C# examples for controlling EcoSyn Lite over USB via a COM port.
